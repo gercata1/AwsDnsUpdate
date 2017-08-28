@@ -29,6 +29,8 @@ namespace AwsDnsUpdate
             #endregion
             try
             {
+                throw new Exception("test exception");
+
                 var ipUrl = Configuration["ipUrl"];
 
                 var client = new HttpClient();
@@ -65,24 +67,32 @@ namespace AwsDnsUpdate
             {
                 Logger.Log(e);
             }
-
-            
         }
-
-
-
     }
 
     public static class Logger
     {
-        public static string logName = DateTime.Today.ToString("yyyyMMdd") + "_log.txt";
+        public static string GetFileName()
+        {
+            string logName = DateTime.Today.ToString("yyyyMMdd") + "_log.txt";
+            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "Log");
+            if (!Directory.Exists(basePath))
+            {
+                Directory.CreateDirectory(basePath);
+            }
+
+            return Path.Combine(basePath , logName);
+        }
+
 
         public static void Log(string message)
         {
-
+            var logName = GetFileName();
             using (StreamWriter sw = File.AppendText(Path.Combine(Directory.GetCurrentDirectory(), logName)))
             {
                 sw.WriteLine(DateTime.Now.ToString() + " - " +  message);
+                sw.WriteLine();
+                sw.WriteLine("_______________________________________________________________________________________________");
             }
 
             Console.WriteLine(message);
@@ -90,7 +100,7 @@ namespace AwsDnsUpdate
 
         public static void Log(Exception e)
         {
-
+            var logName = GetFileName();
             using (StreamWriter sw = File.AppendText(Path.Combine(Directory.GetCurrentDirectory(), logName)))
             {
                 sw.WriteLine(DateTime.Now.ToString() + " - " + e.Message);
@@ -98,6 +108,9 @@ namespace AwsDnsUpdate
                 {
                     sw.WriteLine("\t" + e.StackTrace);
                 }
+
+                sw.WriteLine();
+                sw.WriteLine("_______________________________________________________________________________________________");
             }
 
             Console.WriteLine(e);
